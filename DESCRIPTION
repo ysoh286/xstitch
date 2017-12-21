@@ -1,0 +1,18 @@
+Package: xstitch
+Version: 0.1
+Title: A package for generating cross stitch charts from images
+Description: Simply supply an image and a cross stitch chart will be generated!
+Author: YH Soh
+Maintainer: YH Soh <ysoh286@gmail.com>
+Imports: graphics, grDevices, stats
+Suggests:
+    magick,
+    pixmap,
+    testthat,
+    viridis
+Depends: R(>= 2.10)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+ByteCompile: true
+RoxygenNote: 6.0.1
