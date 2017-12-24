@@ -4,49 +4,61 @@
 #' @param imgpath the path of the image to be processed
 #' @param height height of chart to be produced by squares (default is 100)
 #' @param num number of colours to be used (default is NULL)
-#' @param col.pal a colour palette (via viridis)
+#' @param select.col provide a vector of coloured strings (DMC numbers/code)
 #' @import graphics
-#' @importFrom grDevices col2rgb rgb
+#' @importFrom grDevices col2rgb rgb dev.list dev.new
 #' @importFrom stats kmeans
 #' @export
-chart <- function(imgpath, height = 100, num = NULL, col.pal = NULL) {
+chart <- function(imgpath, height = 100, num = NULL, select.col = NULL) {
   img <- magick::image_read(imgpath)
 
   if (!is.null(height)) {
     img <- magick::image_scale(img, paste0("x", height))
   }
 
-  # TODO: fix for svg and reading error appears
-  # add a border around image
-  #img <- magick::image_border(img, "#ffffff", "1x1")
-  #img <- magick::image_frame(img)
-  # a possible condition for large images with too many pixels?
-  vppm <- magick::image_convert(img, format = "ppm")
-  magick::image_write(vppm, path = "vppm.ppm")
-  imginfo <- pixmap::read.pnm("vppm.ppm", cellres = 1)
+  img <- magick::image_background(img, "white")
+  vppm <- magick::image_convert(img, format = "png")
+  magick::image_write(vppm, path = "img.png")
+  imginfo <- png::readPNG("img.png")
 
   # remove file
-  file.remove("vppm.ppm")
+  file.remove("img.png")
 
   # width and height
-  w <- imginfo@size[2]
-  h <- imginfo@size[1]
+  w <- dim(imginfo)[2]
+  h <- dim(imginfo)[1]
+
+  if (w * h > 100000) {
+    warning("The number of squares to be rendered is over 100,000.
+            This may take a while...")
+  }
 
   # get rgb of pix map
-  r <- imginfo@red * 255
-  g <- imginfo@green * 255
-  b <- imginfo@blue * 255
+  if (dim(imginfo)[3] == 3) {
+    r <- round(imginfo[,,1] * 255)
+    g <- round(imginfo[,,2] * 255)
+    b <- round(imginfo[,,3] * 255)
+  } else {
+     # convert rgba to rgb (from http://marcodiiga.github.io/rgba-to-rgb-conversion)
+     # assume background colour is black:
+    alpha <- imginfo[,,4]
+    r <- round(alpha * imginfo[,,1] * 255)
+    g <- round(alpha * imginfo[,,2] * 255)
+    b <- round(alpha * imginfo[,,3] * 255)
+  }
 
   dim(r) <- NULL
   dim(g) <- NULL
   dim(b) <- NULL
 
-  if (!is.null(col.pal)) {
-    restrictChart <- viridis_match(col.pal, DMCchart)
-    dd <- calcColor(restrictChart, r, g, b, num)
+  if (!is.null(select.col)) {
+    index <- match(as.character(select.col), DMCchart[,1])
+    reducedChart <- DMCchart[index, ]
   } else {
-    dd <- calcColor(DMCchart, r, g, b, num)
+    reducedChart <- DMCchart
   }
+
+  dd <- calcColor(reducedChart, r, g, b, num)
 
   plotXMap(dd, w, h)
 

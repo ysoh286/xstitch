@@ -12,9 +12,3 @@ test_that("general map selection", {
                30)
   expect_equal(chart("Rlogo.png")$height, 100)
 })
-
-test_that("colour matching works", {
-  # take in a single vector
-  expect_equal(as.vector(calcColor(DMCchart, 255, 0, 0)$uni),
-              c("606", "Orange-red-BRIGHT", "#f70f00"))
-})

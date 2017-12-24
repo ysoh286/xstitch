@@ -3,5 +3,7 @@
 export(chart)
 import(graphics)
 importFrom(grDevices,col2rgb)
+importFrom(grDevices,dev.list)
+importFrom(grDevices,dev.new)
 importFrom(grDevices,rgb)
 importFrom(stats,kmeans)

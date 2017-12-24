@@ -16,7 +16,8 @@ calcColor <- function(df, r, g, b, num = NULL) {
       stop(paste("Number exceeds maximum number of colours. Please pick
       a number lower than", sum(!duplicated(dd))), call. = FALSE)
     }
-    k <- kmeans(dd, centers = num)
+    # this may pick random colour points
+    k <- kmeans(dd, centers = num, nstart = 1, iter.max = 1000)
     dd <- k$centers[k$cluster, ]
     # reassign rgb and recalculate distances...
     r <- dd[,1]
@@ -35,41 +36,19 @@ calcColor <- function(df, r, g, b, num = NULL) {
     }
   }
 
-  # match up:
+  # match up unique colours:
   mcol <- paste(m[,1], m[,2], m[,3], sep = ",")
   ccol <- paste(c[,1], c[,2], c[,3], sep = ",")
   ind <- match(ccol, mcol)
   set <- df[ind, ]
 
-  # store colours:
-  colList <- list(cols = dd/255, uni = set)
+  # merge the two data frames:
+  dd$col <- factor(paste(dd[,1], dd[,2], dd[,3], sep = ","))
+  dd <- transform(dd, id = as.numeric(col))
+  ind <- match(levels(dd$col), mcol)
+  set <- df[ind, ]
+  colList <- list(cols = dd[,1:3]/255, colid = dd$id, uni = set)
   return(colList)
-
-}
-
-# colour palette matching
-# used for selection of colours
-# not very good at the moment... 
-viridis_match <- function(pal, df) {
-  t <- switch(pal,
-              magma = "A",
-              inferno = "B",
-              plasma = "C",
-              viridis = "D")
-  ind <- which(viridis::viridis.map[,"opt"] == t)
-  map <- viridis::viridis.map[ind, ]
-  r <- map[,1] * 255
-  g <- map[,2] * 255
-  b <- map[,3] * 255
-
-  m <- t(col2rgb(df[,'bgcolor']))
-  dd <- calcDistance(m, r, g, b)
-  c <- dd[!duplicated(dd), ]
-  mcol <- paste(m[,1], m[,2], m[,3], sep = ",")
-  ccol <- paste(c[,1], c[,2], c[,3], sep = ",")
-  ind <- match(ccol, mcol)
-  colPalette <- df[ind, ]
-  return(colPalette)
 
 }
 

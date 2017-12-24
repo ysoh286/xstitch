@@ -7,9 +7,8 @@ Maintainer: YH Soh <ysoh286@gmail.com>
 Imports: graphics, grDevices, stats
 Suggests:
     magick,
-    pixmap,
-    testthat,
-    viridis
+    png,
+    testthat
 Depends: R(>= 2.10)
 License: GPL-3
 Encoding: UTF-8

@@ -6,7 +6,7 @@
 Supply an image and turn it into a cross stitch chart.
 Currently assumes full stitches.}
 \usage{
-chart(imgpath, height = 100, num = NULL, col.pal = NULL)
+chart(imgpath, height = 100, num = NULL, select.col = NULL)
 }
 \arguments{
 \item{imgpath}{the path of the image to be processed}
@@ -15,7 +15,7 @@ chart(imgpath, height = 100, num = NULL, col.pal = NULL)
 
 \item{num}{number of colours to be used (default is NULL)}
 
-\item{col.pal}{a colour palette (via viridis)}
+\item{select.col}{provide a vector of coloured strings (DMC numbers/code)}
 }
 \description{
 Generate a cross-stitch pattern chart
