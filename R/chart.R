@@ -32,9 +32,26 @@ chart <- function(imgpath, height = 100, num = NULL, select.col = NULL) {
     warning("The number of squares to be rendered is over 100,000.
             This may take a while...")
   }
-
-  # get rgb of pix map
-  if (dim(imginfo)[3] == 3) {
+  
+  ## IN CASE OF GRAYSCALE (means either imginfo will return 
+  ## grayscale / image - 1 / 2 channels rather than 3 or more)
+  ## refer to readPNG docs
+  
+  ## if it is a single channel - set rgb all to be equal
+  if (length(dim(imginfo)) == 1) {
+    r <- round(imginfo * 255)
+    g <- r
+    b <- r
+  } else if (length(dim(imginfo)) == 2) {
+    ## for double channels (most likely grayscale again)
+    ## flatten the matrix
+    values <- as.vector(imginfo * 255)
+    ## assumes grayscale - r / g / b values should be the same
+    r <- values
+    g <- values
+    b <- values
+  } else if (dim(imginfo)[3] == 3) {
+    # get rgb of pix map
     r <- round(imginfo[,,1] * 255)
     g <- round(imginfo[,,2] * 255)
     b <- round(imginfo[,,3] * 255)
@@ -55,11 +72,25 @@ chart <- function(imgpath, height = 100, num = NULL, select.col = NULL) {
     index <- match(as.character(select.col), DMCchart[,1])
     reducedChart <- DMCchart[index, ]
   } else {
-    reducedChart <- DMCchart
+    reducedChart <- DMCchart 
   }
 
   dd <- calcColor(reducedChart, r, g, b, num)
-
+  
+  ## If we want to assign random colours rather than labelling
+  ## as labelling numbers in each square takes alot of time
+  ## but this means the colours won't match original
+  # if (random.col) {
+  #   colorLength <- length(dd$uni[, "bgcolor"])
+  #   print(dd$uni[, "bgcolor"])
+  #   randomColours <- colors()
+  #   rr <- sample(randomColours, colorLength)
+  #   dd$cols[,"id"] <- dd$colid
+  #   dd$cols[,"colour"] <- rr[dd$cols[,"id"]]
+  #   dd$uni[,"colour"] <- rr
+  # }
+  
+  
   plotXMap(dd, w, h)
 
   chart <- list(colorMap = dd$cols, uniqueColors = dd$uni,

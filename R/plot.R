@@ -1,12 +1,12 @@
 # Plot colours to generate a cross-stitch pattern chart
 # Internal function for creating the actual plot/chart to graphics device
-# @param cc colour list from colour matching
+# @param colourList colour list from colour matching
 # @param w width of the plot/chart
 # @param h height of the plot/chart
 # @import graphics
-plotXMap <- function(cc, w, h) {
+plotXMap <- function(colourList, w, h) {
   if (is.null(dev.list())) {
-    dev.new(width = 11, height = 11 * (h/w))
+    dev.new(width = 11, height = 11 * (h / w))
   }
   old.par <- par(oma = par("oma"), las = par("las"), mar = par("mar"))
   # plot map with colours in grid formation
@@ -16,13 +16,16 @@ plotXMap <- function(cc, w, h) {
   plot(0, 0, xaxs = "i", yaxs = "i", xlim = c(1, w), ylim = c(1, h),
       axes = FALSE, xlab = "", ylab = "", type = "n")
 
-  set <- matrix(cc$uni, ncol = 3)
-  dd <- cc$cols
-  colid <- cc$colid
+  set <- matrix(colourList$uni, ncol = 3)
+  dd <- colourList$cols
+  colid <- colourList$colid
 
   # try rect
+  colours <- rev(rgb(dd[,1], dd[,2], dd[,3]))
+
+  ## assign new ones 
   rect(rep(w:1, each = h) - 1, rep(1:h, w) - 1, rep(w:1, each = h), rep(1:h, w),
-       col = rev(rgb(dd[,1], dd[,2], dd[,3])), border = NA, asp = 1)
+       col = colours, border = NA, asp = 1)
   # for each unit square
   abline(h = 1:h, col = "lightgray", lwd = 0.25)
   abline(v = 1:w, col = "lightgray", lwd = 0.25)
@@ -36,7 +39,8 @@ plotXMap <- function(cc, w, h) {
   legend(w + 5, h + 10, paste(1:nrow(set), set[,1], set[,2], sep = " - "),
          border = NA, pch = 15, title = "DMC chart", col = set[,3],
          cex = 0.5, pt.cex = 1, xpd = NA)
-  text(rep(w:1, each = h) - 0.5, rep(1:h, w) - 0.5, labels = rev(colid),
+  # text labels inside each square
+    text(rep(w:1, each = h) - 0.5, rep(1:h, w) - 0.5, labels = rev(colid),
          cex = 0.2, col = "white")
 
   par(old.par)
